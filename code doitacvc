@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace NCC
+{
+    public partial class frmdoitacvc : Form
+    {
+        public frmdoitacvc()
+        {
+            InitializeComponent();
+        }
+        SqlConnection con;
+        private void frmdoitacvc_Load(object sender, EventArgs e)
+        {
+            // TODO: This line of code loads data into the 'qLBHDataSet6.doitac' table. You can move, or remove it, as needed.
+            this.doitacTableAdapter.Fill(this.qLBHDataSet6.doitac);
+            con = new SqlConnection(@"Data Source=ADMINMI-9VCM1KU\SQLEXPRESS02;Initial Catalog=QLBH;Integrated Security=True");
+            con.Open();
+            HienThi();
+        }
+        void HienThi()
+        {
+            string sqlselct = "select *from doitac";
+            SqlCommand cmd = new SqlCommand(sqlselct, con);
+            SqlDataReader dr = cmd.ExecuteReader();
+            DataTable dt = new DataTable();
+            dt.Load(dr);
+            dataGridView1.DataSource = dt;
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int a;
+            a = dataGridView1.CurrentRow.Index;
+            txtbengh.Text = dataGridView1.Rows[a].Cells[0].Value.ToString();
+            txtphi.Text = dataGridView1.Rows[a].Cells[1].Value.ToString();
+            txtnguoivc.Text = dataGridView1.Rows[a].Cells[2].Value.ToString();
+            txtsdt.Text = dataGridView1.Rows[a].Cells[3].Value.ToString();
+        }
+
+        private void txtthem_Click(object sender, EventArgs e)
+        {
+            string sqlinsert = "INSERT INTO doitac VALUES('" + txtbengh.Text + "','" + txtphi.Text + "','" + txtnguoivc.Text + "','" + txtsdt.Text + "')";
+            SqlCommand cmd = new SqlCommand(sqlinsert, con);
+            cmd.ExecuteNonQuery();
+            HienThi();
+            MessageBox.Show("Thêm thành công !!", "Thông báo!!");
+        }
+
+        private void txttaomoi_Click(object sender, EventArgs e)
+        {
+            txtbengh.Text = "";
+            txtphi.Text = "";
+            txtnguoivc.Text = "";
+            txtsdt.Text = "";
+        }
+
+        private void txtxoa_Click(object sender, EventArgs e)
+        {
+            string sqldelete = "delete from doitac where bengh= '" + txtbengh.Text + "'";
+            SqlCommand cmd = new SqlCommand(sqldelete, con);
+            cmd.ExecuteNonQuery();
+            HienThi();
+        }
+
+        private void txtsua_Click(object sender, EventArgs e)
+        {
+            string sqlupdate = "update doitac set phi= N'" + txtphi.Text + "',nguoigiao= N'" + txtnguoivc.Text + "' , sdt='" + txtsdt.Text + "' where bengh ='"+txtbengh.Text+"'";  
+            SqlCommand cmd = new SqlCommand(sqlupdate, con);
+            cmd.ExecuteNonQuery();
+            HienThi();
+            MessageBox.Show("Sửa thành công !!", "Thông báo!!");
+        }
+
+        private void txtthoat_Click(object sender, EventArgs e)
+        {
+            base.Close();
+        }
+
+        private void timkiem_Click(object sender, EventArgs e)
+        {
+            string sqlsearch = "SELECT *FROM doitac  where bengh = '" + txttimkiem.Text + "'";
+            SqlCommand cmd = new SqlCommand(sqlsearch, con);
+            SqlDataReader dr = cmd.ExecuteReader();//Đọc dữ liệu
+            DataTable dt = new DataTable();
+            dt.Load(dr);
+            dataGridView1.DataSource = dt;
+        }
+
+        private void frmdoitacvc_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            con.Close();
+        }
+    }
+}
